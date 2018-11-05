@@ -34,7 +34,7 @@ class SlackNotifier(object):
         try:
             call = self.client.api_call('chat.postMessage', **params)
         except Exception as err:
-            self.logger.info(err)
+            self.logger.error(err)
 
         if call is None:
             self.logger.error('API call could not be completed')
