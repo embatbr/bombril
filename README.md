@@ -1,6 +1,6 @@
 # bombril
 
-*1001 utilities*
+![assolan](logo.jpg)
 
 Repository with useful code created by the Data Engineering Squad at Creditas.
 
