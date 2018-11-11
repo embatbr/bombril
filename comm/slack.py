@@ -32,21 +32,22 @@ class SlackChannel(object):
 
     def write(self, text, extra_params=None):
         call = None
+        ret_msg = 'ok'
+
         try:
             params = self._parameterize(text, extra_params)
             call = self.client.api_call('chat.postMessage', **params)
         except Exception as err:
-            pass
+            ret_msg = str(err)
 
         if call is None:
-            return False
+            return (False, ret_msg)
 
         response = call.get('ok')
-        if response:
-        else:
-            api_err = call.get('error')
+        if not response:
+            ret_msg = call.get('error')
 
-        return response
+        return (response, ret_msg)
 
 
 class SlackNotifier(object):
@@ -62,11 +63,11 @@ class SlackNotifier(object):
     def notify(self, channel_name, message, extra_params=None):
         return self.channels[channel_name].write(message, extra_params)
 
-    def notify_channels(self, channels_names, messages):
+    def notify_channels(self, channels_names, messages, extra_params=None):
         ret = dict()
 
         for (channel_name, message) in zip(channels_names, messages):
-            ret[channel_name] = self.notify(channel_name, message)
+            ret[channel_name] = self.notify(channel_name, message, extra_params)
 
         return ret
 
