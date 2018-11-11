@@ -8,12 +8,13 @@ import logging
 import slackclient
 
 
-class _SlackWriter(object):
+class SlackChannel(object):
     """Writes messages in a Slack channel.
     """
 
-    def __init__(self, channel, username, token):
-        self.channel = channel
+    def __init__(self, name, _id, username, token):
+        self.name = name
+        self.id = _id
         self.username = username
 
         self.client = slackclient.SlackClient(token)
@@ -23,7 +24,7 @@ class _SlackWriter(object):
 
     def _parameterize(self, text, extra_params):
         params = {
-            'channel': self.channel,
+            'channel': self.id,
             'username': self.username,
             'text': text
         }
@@ -56,25 +57,35 @@ class _SlackWriter(object):
 
 
 class SlackNotifier(object):
-    """Notifies success and error in slack channels.
+    """Notifies channels.
     """
 
-    def __init__(self, success_channel, error_channel, username, token):
-        self.writer_success = _SlackWriter(success_channel, username, token)
-        self.writer_error = _SlackWriter(error_channel, username, token)
+    def __init__(self, channels_info, username, token):
+        self.channels = dict()
+        for channel_info in channels_info:
+            name = channel_info['name']
+            self.channels[name] = SlackChannel(
+                name, channel_info['id'], username, token
+            )
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
 
-    def _notify(self, message, extra_params=None, is_error=False):
-        writer = self.writer_success
-        if is_error:
-            writer = self.writer_error
+    def notify(self, channel_name, message, extra_params=None):
+        return self.channels[channel_name].write(message, extra_params)
 
-        return writer.write(message, extra_params)
+    def notify_channels(self, channels_names, messages):
+        ret = dict()
 
-    def notify_success(self, message, extra_params=None):
-        return self._notify(message, extra_params)
+        for (channel_name, message) in zip(channels_names, messages):
+            ret[channel_name] = self.notify(channel_name, message)
 
-    def notify_error(self, message, extra_params=None):
-        return self._notify(message, extra_params, True)
+        return ret
+
+    def notify_all(self, message, extra_params=None):
+        ret = dict()
+
+        for channel_name in self.channels.keys():
+            ret[channel_name] = self.channels[channel_name].write(message, extra_params)
+
+        return ret
