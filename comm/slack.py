@@ -4,7 +4,6 @@
 """
 
 
-import logging
 import slackclient
 
 
@@ -18,9 +17,6 @@ class SlackChannel(object):
         self.username = username
 
         self.client = slackclient.SlackClient(token)
-
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
 
     def _parameterize(self, text, extra_params):
         params = {
@@ -40,18 +36,15 @@ class SlackChannel(object):
             params = self._parameterize(text, extra_params)
             call = self.client.api_call('chat.postMessage', **params)
         except Exception as err:
-            self.logger.error(err)
+            pass
 
         if call is None:
-            self.logger.error('API call could not be completed')
             return False
 
         response = call.get('ok')
         if response:
-            self.logger.info('Text successfully written')
         else:
             api_err = call.get('error')
-            self.logger.error(api_err)
 
         return response
 
@@ -64,12 +57,7 @@ class SlackNotifier(object):
         self.channels = dict()
         for channel_info in channels_info:
             name = channel_info['name']
-            self.channels[name] = SlackChannel(
-                name, channel_info['id'], username, token
-            )
-
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
+            self.channels[name] = SlackChannel(name, channel_info['id'], username, token)
 
     def notify(self, channel_name, message, extra_params=None):
         return self.channels[channel_name].write(message, extra_params)
