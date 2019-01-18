@@ -12,7 +12,8 @@ setup(
     license='WTFPL',
     packages=[
         'bombril',
-        'bombril.cryptography'
+        'bombril.cryptography',
+        'bombril.logging'
     ],
     include_package_data=True,
     install_requires=[
