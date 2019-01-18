@@ -16,8 +16,6 @@ setup(
     ],
     include_package_data=True,
     install_requires=[
-        'Boto3',
-        'Cryptography',
-        'Slackclient'
+        'cryptography==2.4.2'
     ]
 )
