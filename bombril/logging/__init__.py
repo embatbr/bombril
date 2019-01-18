@@ -55,4 +55,11 @@ def get_logger(name, level_name='INFO'):
 
     logger.debug = log_debug(logger)
 
+    def log_exception(self):
+        def _internal(err):
+            self.error('{}: {}', err.__class__.__name__, str(err))
+        return _internal
+
+    logger.log_exception = log_exception(logger)
+
     return logger
