@@ -12,12 +12,10 @@ setup(
     license='WTFPL',
     packages=[
         'bombril',
-        'bombril.aws',
         'bombril.cryptography'
     ],
     include_package_data=True,
     install_requires=[
-        'boto3==1.9.80',
         'cryptography==2.4.2'
     ]
 )
